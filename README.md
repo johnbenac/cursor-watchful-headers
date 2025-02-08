@@ -79,6 +79,8 @@ The combination of these features helps LLMs maintain better project awareness:
 1. **Clean Context**: 
    - `.donotwatchlist` hides irrelevant directories (build outputs, dependencies)
    - Keeps the tree focused on project-specific files
+   - LLMs are automatically reminded to suggest excluding directories that don't add value
+   - Build outputs, cache directories, and other non-essential paths are kept out of the context
 
 2. **Active Monitoring**:
    - "# unwatched" labels help LLMs identify files that should potentially be monitored
@@ -92,12 +94,29 @@ The combination of these features helps LLMs maintain better project awareness:
    - LLMs can analyze patterns of watched vs. unwatched files
    - Suggest consistent monitoring strategies (e.g., "Other Python files in this directory are watched, should we watch this one too?")
    - Help maintain consistent header management across similar file types
+   - Proactively suggest adding directories to `.donotwatchlist` when they don't add value to the context
+
+4. **Self-Optimizing Context**:
+   - LLMs receive automatic reminders in the `.cursorrules` header to:
+     ```
+     NOTE TO ASSISTANT: If you notice directories that don't add value to the context
+     (like build outputs, cache, etc), suggest adding them to .donotwatchlist
+     to keep the tree structure focused and clean.
+     ```
+   - This creates a feedback loop where LLMs help maintain an increasingly clean and relevant context
+   - Common examples of directories to exclude:
+     - `node_modules/`, `venv/`, `__pycache__/` (dependencies)
+     - `build/`, `dist/`, `out/` (build artifacts)
+     - `.git/`, `.svn/` (version control)
+     - `tmp/`, `temp/`, `cache/` (temporary files)
+     - `logs/`, `coverage/` (operational data)
 
 This labeling system creates a self-documenting workflow where:
 - The tree structure shows what exists
 - `.donotwatchlist` controls what's visible
 - "# unwatched" labels guide what should be monitored
-- LLMs can proactively suggest improvements to file monitoring
+- LLMs proactively suggest improvements to both monitoring and context management
+- The context becomes increasingly focused and relevant over time
 
 ## Example: Tree Visualization Control
 

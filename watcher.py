@@ -239,8 +239,12 @@ class HeaderManager:
                     extra_content = [
                         "Project Tree Structure:",
                         "",
-                        "NOTE: Remember to add new files to .watchlist to receive headers.",
+                        "NOTE TO ASSISTANT: Remember to add new files to .watchlist to receive headers.",
                         "      Files not in .watchlist won't receive headers, even if visible in this tree.",
+                        "",
+                        "NOTE TO ASSISTANT: If you notice directories that don't add value to the context",
+                        "      (like build outputs, cache, etc), suggest adding them to .donotwatchlist",
+                        "      to keep the tree structure focused and clean.",
                         "",
                         *[line for line in tree_str.splitlines()],
                         ""
