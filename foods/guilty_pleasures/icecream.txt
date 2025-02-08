@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/guilty_pleasures/icecream.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Creamy scoops of frozen bliss! 🍦
+A treat you simply can't dismiss! 

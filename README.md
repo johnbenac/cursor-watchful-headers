@@ -1,6 +1,6 @@
 # File Watcher with Header Management
 
-A Python-based file watching system that automatically manages headers in text files and maintains a project tree structure. Perfect for maintaining consistent file headers and documentation across your project.
+A Python-based file watching system that automatically manages headers in text files and maintains a clean, focused project tree structure. Perfect for maintaining consistent file headers and documentation across your project.
 
 ## Quick Start
 
@@ -14,13 +14,137 @@ A Python-based file watching system that automatically manages headers in text f
    python cursor-watchful-headers/install.py
    ```
    This will:
-   - Copy `watcher.py` and `watchlist` to your current directory (if they don't already exist)
+   - Copy `watcher.py` and `.watchlist` to your current directory (if they don't already exist)
    - Install the required dependencies
 
 3. Start the watcher:
    ```bash
    python watcher.py
    ```
+
+## Configuration Files
+
+The watcher uses three main configuration files:
+
+1. `.watchlist`: Lists files that should receive headers and be monitored for changes
+   ```
+   # One file per line
+   src/components/header.js
+   src/utils/helpers.py
+   ```
+
+2. `.donotwatchlist`: Controls tree visualization in `.cursorrules`
+   ```
+   # Regex patterns to exclude from tree display
+   node_modules     # Hide node_modules directory
+   build/.*         # Hide build directory and contents
+   .*\.pyc$        # Hide Python cache files
+   ```
+   Note: `.donotwatchlist` only affects what appears in the tree structure. It does not prevent files listed in `.watchlist` from receiving headers.
+
+3. `.cursorrules`: Automatically maintained tree structure
+   - Updated whenever watched files change
+   - Excludes directories/files matching `.donotwatchlist` patterns
+   - Provides clean, focused context for LLM coding agents
+
+## Example: Tree Visualization Control
+
+Consider this project structure with some files we want to hide from the tree:
+
+```
+foods/
+├── fruits/
+│   ├── apple.txt
+│   └── banana.txt
+├── vegetables/
+│   ├── carrot.txt
+│   └── spinach.txt
+└── guilty_pleasures/    # Directory we want to hide
+    ├── chocolate.txt
+    ├── cake.txt
+    └── icecream.txt
+```
+
+By adding `guilty_pleasures` to `.donotwatchlist`:
+```
+guilty_pleasures    # Hide our guilty pleasures from the tree
+```
+
+The `.cursorrules` tree becomes cleaner:
+```
+# Project Tree Structure:
+#
+# ├── foods
+# │   ├── fruits
+# │   │   ├── apple.txt
+# │   │   └── banana.txt
+# │   └── vegetables
+# │       ├── carrot.txt
+# │       └── spinach.txt
+```
+
+This is particularly useful for:
+- Hiding large dependency directories (node_modules, venv)
+- Excluding build/output directories
+- Omitting temporary or cache directories
+- Maintaining focused context for LLM coding agents
+
+## Usage
+
+1. Configure file watching in `.watchlist`:
+   ```
+   # Files to receive headers and be monitored
+   src/components/*.js
+   src/utils/*.py
+   ```
+
+2. Configure tree visualization in `.donotwatchlist`:
+   ```
+   # Patterns to exclude from tree display
+   node_modules
+   dist
+   build/.*
+   tmp/.*
+   ```
+
+3. Run the watcher:
+   ```bash
+   python watcher.py
+   ```
+
+The watcher will:
+- Add headers to files listed in `.watchlist`
+- Monitor those files for changes
+- Maintain a clean tree structure in `.cursorrules`, excluding patterns from `.donotwatchlist`
+
+## File Headers
+
+Headers are automatically added to files listed in `.watchlist`:
+```
+# === WATCHER HEADER START ===
+# File: src/components/header.js
+# Managed by file watcher
+# === WATCHER HEADER END ===
+```
+
+Note: Files not listed in `.watchlist` won't receive headers, regardless of `.donotwatchlist` settings.
+
+## Best Practices
+
+1. `.watchlist` Management:
+   - Include only files that need headers
+   - Use relative paths from project root
+   - Group related files together
+
+2. `.donotwatchlist` Usage:
+   - Focus on directories that clutter the tree
+   - Hide build artifacts and dependencies
+   - Keep patterns simple and maintainable
+
+3. Tree Structure:
+   - Keep it focused on relevant code
+   - Hide implementation details
+   - Maintain clean context for LLM agents
 
 ## Example Tree and File Headers
 
@@ -32,11 +156,6 @@ When you run the watcher, it automatically generates file headers that include t
 # Managed by file watcher
 # Project Tree Structure:
 #
-# ├── .cursorrules
-# ├── .specstory
-# │   └── history
-# │       ├── .what-is-this.md
-# │       └── creating-fruit-themed-text-files.md
 # ├── foods
 # │   ├── beverages
 # │   │   ├── juice.txt
@@ -62,8 +181,6 @@ When you run the watcher, it automatically generates file headers that include t
 # │       ├── broccoli.txt
 # │       ├── carrot.txt
 # │       └── spinach.txt
-# ├── requirements.txt
-# ├── tests
 # ├── watcher.py
 # └── watchlist
 # === WATCHER HEADER END ===
@@ -123,7 +240,7 @@ If you want to add the watcher to an existing project:
    ```
 
 2. The script will:
-   - Copy `watcher.py` and `watchlist` to your current directory (if they don't already exist)
+   - Copy `watcher.py` and `.watchlist` to your current directory (if they don't already exist)
    - Install the required `watchdog` package
    - Leave your existing `requirements.txt` untouched
    - Leave your existing `.cursorrules` untouched (at least until you run watcher.py)
@@ -140,7 +257,7 @@ If you prefer to set things up manually:
 1. Copy these essential files to your project root:
    ```
    watcher.py
-   watchlist
+   .watchlist
    ```
 
 2. Install the required dependency:
@@ -148,14 +265,11 @@ If you prefer to set things up manually:
    pip install watchdog==3.0.0
    ```
 
-3. Create or modify your `watchlist` file:
+3. Create or modify your `.watchlist` file:
    ```
-   # watchlist
-   # Add your project files to watch (one per line)
-   src/components/header.js
-   src/utils/helpers.py
-   docs/api.md
-   # etc...
+   # Files to receive headers and be monitored
+   src/components/*.js
+   src/utils/*.py
    ```
 
 4. Start the watcher:
@@ -167,18 +281,46 @@ If you prefer to set things up manually:
 
 ## Usage
 
-1. Add files to watch in `watchlist`:
+1. (Optional) Remove example files:
+   ```bash
+   rm -rf foods  # On Windows: rmdir /s /q foods
+   ```
+   Then clear the watchlist file, leaving just the header:
+   ```
+   # List files to be watched (one per line)
+   # Lines starting with # are ignored
+   ```
+
+2. Add files to watch in `.watchlist`. You can do this:
+   - Manually by editing the file
+   - Using your AI coding assistant (recommended):
+     ```
+     Ask: "Please add the following files to the watchlist..."
+     or
+     Ask: "Could you analyze my project and suggest files to watch?"
+     ```
+   
+   The watchlist format is simple:
    ```
    # One file per line
    path/to/your/file.txt
    ```
 
-2. Run the watcher:
+3. Configure tree visualization in `.donotwatchlist`:
+   ```
+   # Patterns to exclude from tree display
+   node_modules
+   dist
+   build/.*
+   tmp/.*
+   ```
+
+4. Run the watcher:
    ```bash
    python watcher.py
    ```
 
-3. The watcher will:
+4. The watcher will:
    - Add headers to all watched files
    - Update `.cursorrules` with the project tree
    - Monitor for changes in real-time

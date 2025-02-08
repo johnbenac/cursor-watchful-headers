@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/guilty_pleasures/chocolate.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Rich dark chocolate, a sinful delight! 🍫
+Melts in your mouth, keeps you up at night! 

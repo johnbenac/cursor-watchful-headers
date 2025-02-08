@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/fruits/mango.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Sweet tropical mango, juicy and bright! 🥭
+Nature's candy, pure delight! 

@@ -4,6 +4,7 @@
 foods/fruits/apple.txt
 foods/fruits/banana.txt
 foods/fruits/orange.txt
+foods/fruits/mango.txt
 foods/vegetables/carrot.txt
 foods/vegetables/broccoli.txt
 foods/vegetables/spinach.txt
@@ -19,3 +20,5 @@ foods/snacks/nuts.txt
 foods/beverages/smoothie.txt
 foods/beverages/juice.txt
 foods/beverages/tea.txt 
+
+hello_world.py

@@ -21,6 +21,29 @@ def build_tree(root, prefix=""):
             continue
             
         path = os.path.join(root, entry)
+        
+        # If it's a directory, check against donotwatch patterns before processing
+        if os.path.isdir(path):
+            # Get patterns from .donotwatchlist
+            try:
+                with open(HeaderManager.DONOTWATCHLIST_NAME, 'r') as f:
+                    patterns = [line.strip() for line in f.readlines() if line.strip() and not line.startswith('#')]
+            except Exception:
+                patterns = []
+                
+            # Check if directory name matches any pattern
+            should_skip = False
+            for pattern in patterns:
+                try:
+                    if re.search(pattern, entry):
+                        should_skip = True
+                        break
+                except re.error:
+                    continue
+                    
+            if should_skip:
+                continue
+            
         is_last = i == len(entries) - 1
         connector = "└── " if is_last else "├── "
         tree_lines.append(prefix + connector + entry)
@@ -45,9 +68,10 @@ class HeaderManager:
     _lock = Lock()
     _last_update = {}
     
-    # Name of this script and watchlist - to be ignored
+    # Name of this script and configuration files
     SCRIPT_NAME = "watcher.py"
-    WATCHLIST_NAME = "watchlist"
+    WATCHLIST_NAME = ".watchlist"
+    DONOTWATCHLIST_NAME = ".donotwatchlist"
     CURSORRULES_NAME = ".cursorrules"
     
     COMMENT_SYNTAX = {
@@ -126,27 +150,55 @@ class HeaderManager:
             return []
 
     @classmethod
+    def get_donotwatch_patterns(cls):
+        """Get list of regex patterns for files/paths to exclude from watching."""
+        try:
+            if not os.path.exists(cls.DONOTWATCHLIST_NAME):
+                return []
+            with open(cls.DONOTWATCHLIST_NAME, 'r') as f:
+                return [line.strip() for line in f.readlines() if line.strip() and not line.startswith('#')]
+        except Exception as e:
+            print(f"Error reading donotwatchlist: {str(e)}")
+            return []
+
+    @classmethod
     def should_process_file(cls, filepath):
-        # Normalize path separators for comparison
+        # Normalize path separators and convert to relative path
         filepath = filepath.replace('\\', '/')
+        try:
+            # Convert absolute path to relative path from current directory
+            rel_filepath = os.path.relpath(filepath).replace('\\', '/')
+        except ValueError:
+            # If relpath fails (e.g., on different drives), use original path
+            rel_filepath = filepath
+        
         filename = os.path.basename(filepath)
         
-        # Don't process the watcher script, watchlist, or cursorrules
-        if filename in [cls.SCRIPT_NAME, cls.WATCHLIST_NAME, cls.CURSORRULES_NAME]:
+        # Don't process the watcher script or configuration files
+        if filename in [cls.SCRIPT_NAME, cls.WATCHLIST_NAME, cls.DONOTWATCHLIST_NAME, cls.CURSORRULES_NAME]:
             return False
             
         # Don't process non-existent files
         if not os.path.exists(filepath):
             return False
+
+        # Check if file matches any do-not-watch patterns
+        for pattern in cls.get_donotwatch_patterns():
+            try:
+                if re.search(pattern, rel_filepath):
+                    return False
+            except re.error:
+                print(f"Warning: Invalid regex pattern in {cls.DONOTWATCHLIST_NAME}: {pattern}")
+                continue
             
         # Check if file is in watchlist (using normalized paths)
         watched_files = [f.replace('\\', '/') for f in cls.get_watched_files()]
-        if filepath not in watched_files:
+        if rel_filepath not in watched_files:
             return False
             
         # Check if file extension is supported
         file_ext = os.path.splitext(filepath)[1]
-        return file_ext in cls.COMMENT_SYNTAX
+        return file_ext.lower() in cls.COMMENT_SYNTAX
 
     @classmethod
     def update_file_header(cls, filepath):
@@ -230,13 +282,24 @@ class HeaderManager:
 
     @classmethod
     def verify_watchlist(cls):
-        """Verify watchlist exists and check for missing files"""
+        """Verify watchlist and donotwatchlist exist and check for missing files"""
+        # Check .watchlist
         if not os.path.exists(cls.WATCHLIST_NAME):
             print(f"Creating {cls.WATCHLIST_NAME} file...")
             with open(cls.WATCHLIST_NAME, 'w') as f:
                 f.write("# List files to be watched (one per line)\n")
                 f.write("# Lines starting with # are ignored\n")
-            return
+
+        # Check .donotwatchlist
+        if not os.path.exists(cls.DONOTWATCHLIST_NAME):
+            print(f"Creating {cls.DONOTWATCHLIST_NAME} file...")
+            with open(cls.DONOTWATCHLIST_NAME, 'w') as f:
+                f.write("# List regex patterns for files/paths to exclude (one per line)\n")
+                f.write("# Lines starting with # are ignored\n")
+                f.write("# Example patterns:\n")
+                f.write("# secret/.*      # Excludes all files in 'secret' directory\n")
+                f.write("# .*\.log$       # Excludes all .log files\n")
+                f.write("# .*secret.*     # Excludes any file with 'secret' in the path\n")
 
         # Check for missing files
         missing_files = []
@@ -245,7 +308,7 @@ class HeaderManager:
                 missing_files.append(filepath)
         
         if missing_files:
-            print("\nWarning: The following files in watchlist do not exist:")
+            print("\nWarning: The following files in .watchlist do not exist:")
             for filepath in missing_files:
                 print(f"  - {filepath}")
             print("\nThese files will be watched once they are created.\n")
@@ -305,10 +368,18 @@ class FileChangeHandler(FileSystemEventHandler):
 
         self.last_events[filepath] = current_time
         
-        # Check if this is the watchlist being modified - do this FIRST
-        if os.path.basename(filepath) == HeaderManager.WATCHLIST_NAME:
+        # Check if this is one of the configuration files being modified
+        filename = os.path.basename(filepath)
+        if filename == HeaderManager.WATCHLIST_NAME:
             print(f"\n[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Watchlist modified, updating watchers...")
             self.handle_watchlist_update()
+            return
+        elif filename == HeaderManager.DONOTWATCHLIST_NAME:
+            print(f"\n[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Donotwatchlist modified, refreshing exclusions...")
+            # Update all watched files to apply new exclusions
+            for watched_file in HeaderManager.get_watched_files():
+                if os.path.exists(watched_file):
+                    HeaderManager.update_file_header(watched_file)
             return
             
         # Then check if it's a watched file
