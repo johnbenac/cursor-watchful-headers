@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/vegetables/broccoli.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Little green trees of health delight! 🥦
+Packed with nutrients, making your body right

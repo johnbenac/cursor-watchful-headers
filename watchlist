@@ -1,0 +1,21 @@
+# List files to be watched (one per line)
+# Lines starting with # are ignored
+# Updated with grains, snacks, and beverages categories
+foods/fruits/apple.txt
+foods/fruits/banana.txt
+foods/fruits/orange.txt
+foods/vegetables/carrot.txt
+foods/vegetables/broccoli.txt
+foods/vegetables/spinach.txt
+foods/dairy/cheese.txt
+foods/dairy/milk.txt
+foods/dairy/yogurt.txt
+foods/grains/bread.txt
+foods/grains/rice.txt
+foods/grains/pasta.txt
+foods/snacks/chips.txt
+foods/snacks/popcorn.txt
+foods/snacks/nuts.txt
+foods/beverages/smoothie.txt
+foods/beverages/juice.txt
+foods/beverages/tea.txt 

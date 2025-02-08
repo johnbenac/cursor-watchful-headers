@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/vegetables/spinach.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Leafy green spinach, Popeye's favorite treat! 🍃
+Iron-rich and tender, makes your muscles neat

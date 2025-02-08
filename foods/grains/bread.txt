@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/grains/bread.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Fresh from the oven, warm and light! 🍞
+Crusty and golden, pure delight! 

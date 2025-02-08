@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/vegetables/carrot.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Crunchy orange carrot, straight from the ground! 🥕
+Rich in vitamin A, making your eyesight sound

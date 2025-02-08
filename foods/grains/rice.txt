@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/grains/rice.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Fluffy white grains, steamed just right! 🍚
+Perfect companion, day or night! 

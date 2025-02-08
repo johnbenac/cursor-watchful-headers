@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/fruits/apple.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+This is a delicious red apple! 🍎
+Sweet and crispy, perfect for a healthy snack!

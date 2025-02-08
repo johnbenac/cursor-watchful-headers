@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/beverages/smoothie.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Blended fruits and ice so nice! 🥤
+Smooth and creamy, paradise! 

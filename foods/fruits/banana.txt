@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/fruits/banana.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+A yellow banana, curved and bright! 🍌
+Rich in potassium and naturally sweet delight!

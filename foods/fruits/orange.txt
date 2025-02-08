@@ -1,0 +1,7 @@
+# === WATCHER HEADER START ===
+# File: foods/fruits/orange.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+
+Round orange citrus, full of zest! 🍊
+Vitamin C and sunshine make it nature's best!

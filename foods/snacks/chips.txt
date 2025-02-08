@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/snacks/chips.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Crispy and crunchy, a perfect snack! 🥔
+Salty and savory, keep coming back! 

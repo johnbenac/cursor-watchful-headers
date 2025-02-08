@@ -1,0 +1,6 @@
+# === WATCHER HEADER START ===
+# File: foods/dairy/milk.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Fresh and creamy, straight from the farm! 🥛
+Rich in calcium, doing your bones no harm! 
