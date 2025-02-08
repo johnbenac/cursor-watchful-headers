@@ -15,6 +15,9 @@ def build_tree(root, prefix=""):
     except Exception:
         return ""
         
+    # Get list of watched files for comparison
+    watched_files = [f.replace('\\', '/') for f in HeaderManager.get_watched_files()]
+        
     for i, entry in enumerate(entries):
         # Skip certain directories
         if entry in ['node_modules', '.git', '__pycache__']:
@@ -46,7 +49,16 @@ def build_tree(root, prefix=""):
             
         is_last = i == len(entries) - 1
         connector = "└── " if is_last else "├── "
-        tree_lines.append(prefix + connector + entry)
+        
+        # For files, check if they're in watchlist
+        if not os.path.isdir(path):
+            rel_path = os.path.relpath(path).replace('\\', '/')
+            if rel_path not in watched_files:
+                tree_lines.append(f"{prefix}{connector}{entry}  # unwatched")
+            else:
+                tree_lines.append(f"{prefix}{connector}{entry}")
+        else:
+            tree_lines.append(f"{prefix}{connector}{entry}")
         
         if os.path.isdir(path):
             extension = "    " if is_last else "│   "
@@ -226,6 +238,9 @@ class HeaderManager:
                     tree_str = build_tree(".")
                     extra_content = [
                         "Project Tree Structure:",
+                        "",
+                        "NOTE: Remember to add new files to .watchlist to receive headers.",
+                        "      Files not in .watchlist won't receive headers, even if visible in this tree.",
                         "",
                         *[line for line in tree_str.splitlines()],
                         ""

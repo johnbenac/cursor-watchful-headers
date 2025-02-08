@@ -46,6 +46,58 @@ The watcher uses three main configuration files:
    - Updated whenever watched files change
    - Excludes directories/files matching `.donotwatchlist` patterns
    - Provides clean, focused context for LLM coding agents
+   - Labels unwatched files to help identify what should be monitored
+
+## Tree Visualization Features
+
+The tree structure in `.cursorrules` provides two key features:
+
+1. **Directory Exclusion** (via `.donotwatchlist`):
+   ```
+   foods/
+   ├── fruits/
+   │   ├── apple.txt
+   │   └── banana.txt
+   └── vegetables/       # guilty_pleasures/ directory is hidden
+       ├── carrot.txt
+       └── spinach.txt
+   ```
+
+2. **Unwatched File Labeling**:
+   ```
+   ├── src/
+   │   ├── main.py
+   │   ├── utils.py  # unwatched
+   │   └── config.py  # unwatched
+   ```
+   Files marked with "# unwatched" are visible in the tree but not receiving headers.
+
+### How This Helps LLMs
+
+The combination of these features helps LLMs maintain better project awareness:
+
+1. **Clean Context**: 
+   - `.donotwatchlist` hides irrelevant directories (build outputs, dependencies)
+   - Keeps the tree focused on project-specific files
+
+2. **Active Monitoring**:
+   - "# unwatched" labels help LLMs identify files that should potentially be monitored
+   - When an LLM sees an unwatched file being modified, it can suggest:
+     ```
+     "I notice utils.py is marked as unwatched. Would you like me to add it to .watchlist
+     to ensure it receives proper headers and monitoring?"
+     ```
+
+3. **Intelligent Recommendations**:
+   - LLMs can analyze patterns of watched vs. unwatched files
+   - Suggest consistent monitoring strategies (e.g., "Other Python files in this directory are watched, should we watch this one too?")
+   - Help maintain consistent header management across similar file types
+
+This labeling system creates a self-documenting workflow where:
+- The tree structure shows what exists
+- `.donotwatchlist` controls what's visible
+- "# unwatched" labels guide what should be monitored
+- LLMs can proactively suggest improvements to file monitoring
 
 ## Example: Tree Visualization Control
 
