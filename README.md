@@ -22,6 +22,74 @@ A Python-based file watching system that automatically manages headers in text f
    python watcher.py
    ```
 
+## Example Tree and File Headers
+
+When you run the watcher, it automatically generates file headers that include the current project tree structure. For example, a portion of the generated **.cursorrules** file may look like:
+
+```
+# === WATCHER HEADER START ===
+# File: .cursorrules
+# Managed by file watcher
+# Project Tree Structure:
+#
+# ├── .cursorrules
+# ├── .specstory
+# │   └── history
+# │       ├── .what-is-this.md
+# │       └── creating-fruit-themed-text-files.md
+# ├── foods
+# │   ├── beverages
+# │   │   ├── juice.txt
+# │   │   ├── smoothie.txt
+# │   │   └── tea.txt
+# │   ├── dairy
+# │   │   ├── cheese.txt
+# │   │   ├── milk.txt
+# │   │   └── yogurt.txt
+# │   ├── fruits
+# │   │   ├── apple.txt
+# │   │   ├── banana.txt
+# │   │   └── orange.txt
+# │   ├── grains
+# │   │   ├── bread.txt
+# │   │   ├── pasta.txt
+# │   │   └── rice.txt
+# │   ├── snacks
+# │   │   ├── chips.txt
+# │   │   ├── nuts.txt
+# │   │   └── popcorn.txt
+# │   └── vegetables
+# │       ├── broccoli.txt
+# │       ├── carrot.txt
+# │       └── spinach.txt
+# ├── requirements.txt
+# ├── tests
+# ├── watcher.py
+# └── watchlist
+# === WATCHER HEADER END ===
+```
+
+Similarly, individual files receive headers. For example, the header in **foods/vegetables/carrot.txt** might be:
+
+```
+# === WATCHER HEADER START ===
+# File: foods/vegetables/carrot.txt
+# Managed by file watcher
+# === WATCHER HEADER END ===
+Crunchy orange carrot, straight from the ground! 🥕
+Rich in vitamin A, making your eyesight sound!
+```
+
+### How This Helps LLMs
+
+Long conversations or complex projects can cause the context of file paths and project structure to become obscured. By including explicit header information that shows each file's location within the overall project tree, both developers and LLM-based coding assistants are provided with clear context. This mitigates common issues such as:
+
+- Duplicating files by forgetting existing entries
+- Losing track of how individual files relate to the larger codebase
+- Overlooking important structural context during long modification sessions
+
+This way, when an LLM is assisting with code modifications, it can reference the file's placement and relationships, ensuring consistent and context-aware modifications even when conversation history becomes very lengthy.
+
 ## Features
 
 - Automatically adds and updates headers in watched files
