@@ -7,13 +7,15 @@ A Python-based file watching system that automatically manages headers in text f
 1. Clone the repository:
    ```bash
    git clone https://github.com/johnbenac/cursor-watchful-headers.git
-   cd cursor-watchful-headers
    ```
 
-2. Install dependencies:
+2. Run the installation script:
    ```bash
-   pip install -r requirements.txt
+   python cursor-watchful-headers/install.py
    ```
+   This will:
+   - Copy `watcher.py` and `watchlist` to your current directory (if they don't already exist)
+   - Install the required dependencies
 
 3. Start the watcher:
    ```bash
@@ -42,15 +44,43 @@ This repository includes example food-themed content to demonstrate the watcher'
 
 ## Using in Your Project
 
-1. Either clone this repository or copy these essential files to your project:
+### Option 1: Installing via Script (Recommended)
+
+If you want to add the watcher to an existing project:
+
+1. From your project root, clone and install:
+   ```bash
+   git clone https://github.com/johnbenac/cursor-watchful-headers.git
+   python cursor-watchful-headers/install.py
+   ```
+
+2. The script will:
+   - Copy `watcher.py` and `watchlist` to your current directory (if they don't already exist)
+   - Install the required `watchdog` package
+   - Leave your existing `requirements.txt` untouched
+   - Leave your existing `.cursorrules` untouched (at least until you run watcher.py)
+
+3. You can now delete the cloned directory if desired (the copied files in your current directory will remain):
+   ```bash
+   rm -rf cursor-watchful-headers  # On Windows: rmdir /s /q cursor-watchful-headers
+   ```
+
+### Option 2: Manual Installation
+
+If you prefer to set things up manually:
+
+1. Copy these essential files to your project root:
    ```
    watcher.py
    watchlist
-   .cursorrules
-   requirements.txt
    ```
 
-2. If copying files, create a `watchlist` file:
+2. Install the required dependency:
+   ```bash
+   pip install watchdog==3.0.0
+   ```
+
+3. Create or modify your `watchlist` file:
    ```
    # watchlist
    # Add your project files to watch (one per line)
@@ -60,17 +90,12 @@ This repository includes example food-themed content to demonstrate the watcher'
    # etc...
    ```
 
-3. Install the required dependency:
-   ```bash
-   pip install watchdog==3.0.0
-   # or
-   pip install -r requirements.txt
-   ```
-
 4. Start the watcher:
    ```bash
    python watcher.py
    ```
+
+**Note:** The `.cursorrules` file will be automatically created in your project root when you first run the watcher.
 
 ## Usage
 
@@ -147,10 +172,6 @@ COMMENT_SYNTAX = {
    - Use relative paths in watchlist
    - Group related files in directories
 
-3. **Version Control**:
-   - Commit `.cursorrules` and `watchlist` to track project structure
-   - Include `watcher.py` in your repository
-   - Use the provided `.gitignore`
 
 ## Contributing
 
