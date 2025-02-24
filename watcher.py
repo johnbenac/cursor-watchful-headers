@@ -399,6 +399,7 @@ class FileChangeHandler(FileSystemEventHandler):
             for watched_file in HeaderManager.get_watched_files():
                 if os.path.exists(watched_file):
                     HeaderManager.update_file_header(watched_file)
+            HeaderManager.update_cursorrules()
             return
             
         # Then check if it's a watched file
@@ -406,8 +407,9 @@ class FileChangeHandler(FileSystemEventHandler):
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             print(f"[{timestamp}] Detected change in {filepath}")
             HeaderManager.update_file_header(filepath)
-            # After any file is modified, update the cursorrules
-            HeaderManager.update_cursorrules()
+        
+        # Always update cursorrules for any file event
+        HeaderManager.update_cursorrules()
 
     def on_modified(self, event):
         self.handle_file_event(event)
