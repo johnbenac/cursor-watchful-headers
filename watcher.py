@@ -7,6 +7,9 @@ import re
 import sys
 from threading import Lock
 
+# Add debug flag at the top level
+DEBUG = True
+
 def build_tree(root, prefix=""):
     """Build a tree-like structure of the project directory."""
     tree_lines = []
@@ -17,6 +20,33 @@ def build_tree(root, prefix=""):
         
     # Get list of watched files for comparison
     watched_files = [f.replace('\\', '/') for f in HeaderManager.get_watched_files()]
+    
+    # Get patterns from .donotwatchlist
+    try:
+        with open(HeaderManager.DONOTWATCHLIST_NAME, 'r') as f:
+            # Strip comments from the patterns
+            raw_lines = [line.strip() for line in f.readlines() if line.strip() and not line.startswith('#')]
+            patterns = []
+            for line in raw_lines:
+                # Split at the first # that's not escaped and preceded by whitespace
+                comment_match = re.search(r'(?<!\\)\s+#', line)
+                if comment_match:
+                    # Keep only the part before the comment
+                    pattern = line[:comment_match.start()].strip()
+                else:
+                    pattern = line
+                
+                if pattern:  # Only add non-empty patterns
+                    patterns.append(pattern)
+                    
+        if DEBUG:
+            print(f"\nDEBUG: Loaded {len(patterns)} patterns from .donotwatchlist:")
+            for i, pattern in enumerate(patterns):
+                print(f"  Pattern {i+1}: '{pattern}'")
+    except Exception as e:
+        patterns = []
+        if DEBUG:
+            print(f"DEBUG: Failed to load patterns from .donotwatchlist: {e}")
         
     for i, entry in enumerate(entries):
         # Skip certain directories
@@ -24,27 +54,44 @@ def build_tree(root, prefix=""):
             continue
             
         path = os.path.join(root, entry)
+        rel_path = os.path.relpath(path).replace('\\', '/')
         
         # If it's a directory, check against donotwatch patterns before processing
         if os.path.isdir(path):
-            # Get patterns from .donotwatchlist
-            try:
-                with open(HeaderManager.DONOTWATCHLIST_NAME, 'r') as f:
-                    patterns = [line.strip() for line in f.readlines() if line.strip() and not line.startswith('#')]
-            except Exception:
-                patterns = []
-                
             # Check if directory name matches any pattern
             should_skip = False
+            if DEBUG and ('.gradle' in entry or 'build' in entry or 'gradle' in entry):
+                print(f"\nDEBUG: Checking directory: '{entry}' (full path: '{rel_path}')")
+                
             for pattern in patterns:
                 try:
                     if re.search(pattern, entry):
                         should_skip = True
+                        if DEBUG and ('.gradle' in entry or 'build' in entry or 'gradle' in entry):
+                            print(f"  DEBUG: MATCHED pattern '{pattern}' - will skip '{entry}'")
                         break
+                    elif DEBUG and ('.gradle' in entry or 'build' in entry or 'gradle' in entry):
+                        print(f"  DEBUG: Did NOT match pattern '{pattern}' against '{entry}'")
                 except re.error:
+                    if DEBUG:
+                        print(f"  DEBUG: Invalid regex pattern: '{pattern}'")
                     continue
                     
+            # Try matching against full relative path as well
+            if not should_skip:
+                for pattern in patterns:
+                    try:
+                        if re.search(pattern, rel_path):
+                            should_skip = True
+                            if DEBUG and ('.gradle' in rel_path or 'build' in rel_path or 'gradle' in rel_path):
+                                print(f"  DEBUG: MATCHED path pattern '{pattern}' - will skip '{rel_path}'")
+                            break
+                    except re.error:
+                        continue
+                    
             if should_skip:
+                if DEBUG and ('.gradle' in entry or 'build' in entry or 'gradle' in entry):
+                    print(f"  DEBUG: Skipping directory: '{entry}'")
                 continue
             
         is_last = i == len(entries) - 1
@@ -156,7 +203,27 @@ class HeaderManager:
             if not os.path.exists(cls.WATCHLIST_NAME):
                 return []
             with open(cls.WATCHLIST_NAME, 'r') as f:
-                return [line.strip() for line in f.readlines() if line.strip() and not line.startswith('#')]
+                # Strip comments from the patterns
+                raw_lines = [line.strip() for line in f.readlines() if line.strip() and not line.startswith('#')]
+                watched_files = []
+                for line in raw_lines:
+                    # Split at the first # that's not escaped and preceded by whitespace
+                    comment_match = re.search(r'(?<!\\)\s+#', line)
+                    if comment_match:
+                        # Keep only the part before the comment
+                        file_path = line[:comment_match.start()].strip()
+                    else:
+                        file_path = line
+                    
+                    if file_path:  # Only add non-empty paths
+                        watched_files.append(file_path)
+                        
+            if DEBUG:
+                print(f"\nDEBUG: Loaded {len(watched_files)} files from .watchlist:")
+                for i, file_path in enumerate(watched_files):
+                    print(f"  File {i+1}: '{file_path}'")
+                    
+            return watched_files
         except Exception as e:
             print(f"Error reading watchlist: {str(e)}")
             return []
@@ -399,7 +466,6 @@ class FileChangeHandler(FileSystemEventHandler):
             for watched_file in HeaderManager.get_watched_files():
                 if os.path.exists(watched_file):
                     HeaderManager.update_file_header(watched_file)
-            HeaderManager.update_cursorrules()
             return
             
         # Then check if it's a watched file
@@ -407,9 +473,8 @@ class FileChangeHandler(FileSystemEventHandler):
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             print(f"[{timestamp}] Detected change in {filepath}")
             HeaderManager.update_file_header(filepath)
-        
-        # Always update cursorrules for any file event
-        HeaderManager.update_cursorrules()
+            # After any file is modified, update the cursorrules
+            HeaderManager.update_cursorrules()
 
     def on_modified(self, event):
         self.handle_file_event(event)

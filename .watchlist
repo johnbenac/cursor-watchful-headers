@@ -1,6 +1,7 @@
-# List files to be watched (one per line)
+# List files to be watched (one per line, using relative paths from watcher.py location)
 # Lines starting with # are ignored
-# Updated with grains, snacks, and beverages categories
+# Each path should be relative to the directory containing watcher.py
+# Example: foods/beverages/juice.txt (not /full/path/to/foods/beverages/juice.txt)
 foods/fruits/apple.txt
 foods/fruits/banana.txt
 foods/fruits/orange.txt
