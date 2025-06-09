@@ -198,6 +198,19 @@ Headers are automatically added to files listed in `.watchlist`:
 # === WATCHER HEADER END ===
 ```
 
+These header lines are only for LLMs to read. If an assistant sees the file
+without other context (for example you pasted it into ChatGPT), the header
+shows the file's exact location in the project. This prevents path mistakes
+like editing `cheese.txt` instead of `foods/dairy/cheese.txt`.
+### Why LLM Headers Matter
+
+When you paste a file or code snippet into a tool like ChatGPT or Cursor, the assistant might not know where that file lives in your repository. The header gives the exact path so the assistant can keep track of project structure. This helps avoid mistakes such as:
+
+- Importing sibling files with the wrong relative path (e.g., `import cheese.txt` instead of `import ../dairy/cheese.txt`).
+- Running commands like `edit_file(cheese.txt)` which would create a new file at `./cheese.txt` rather than updating `foods/dairy/cheese.txt`.
+- Losing track of related files when conversations become very long.
+
+Placing the path directly in the file ensures the assistant always has clear breadcrumbs back to the correct location in your tree.
 Note: Files not listed in `.watchlist` won't receive headers, regardless of `.donotwatchlist` settings.
 
 ## Best Practices
